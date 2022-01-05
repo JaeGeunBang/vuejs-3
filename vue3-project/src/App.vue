@@ -1,36 +1,37 @@
 <template>
-  <div class="name">
-    {{ name2 }}
+  <div v-bind:class="nameClass">
+    {{ name }}
   </div>
-
+  <input v-bind:type="type" v-bind:value="name">
   <button
       class="btn btn-primary"
-      v-on:click="updateName"
+      @click = "updateName"
   >
     Click
   </button>
 </template>
 
 <script>
-import { ref, reactive } from 'vue';
+import { ref } from 'vue';
 
 export default {
   setup() {
-    const name = ref('test') // string, int 넣을때 ref 사용
-    const name2 = reactive({ // object, array 넣을때 reactive 사용
-      id: 1
-    })
+    const name = ref('test')
+    const type = ref('text')
+    const nameClass = ref('name')
 
     const greeting = () => {
       return 'Hello'
     }
 
     const updateName = () => {
-      name2.id = 2;
+      name.value = "Coder"
+      type.value = "text";
     }
     return { // object로 return하며, return 된 값은 <template> 내에서 사용가능하다.
       name,
-      name2,
+      type,
+      nameClass,
       greeting,
       updateName,
     }
