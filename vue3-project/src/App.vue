@@ -1,11 +1,11 @@
 <template>
-  <div v-bind:class="nameClass">
-    {{ name }}
-  </div>
-  <input v-bind:type="type" v-bind:value="name">
+  <input
+      type="text"
+      v-model="name"
+  >
   <button
       class="btn btn-primary"
-      @click = "updateName"
+      @click = "onSubmit"
   >
     Click
   </button>
@@ -17,23 +17,13 @@ import { ref } from 'vue';
 export default {
   setup() {
     const name = ref('test')
-    const type = ref('text')
-    const nameClass = ref('name')
 
-    const greeting = () => {
-      return 'Hello'
+    const onSubmit = () => {
+      console.log(name.value)
     }
-
-    const updateName = () => {
-      name.value = "Coder"
-      type.value = "text";
-    }
-    return { // object로 return하며, return 된 값은 <template> 내에서 사용가능하다.
+    return {
       name,
-      type,
-      nameClass,
-      greeting,
-      updateName,
+      onSubmit
     }
   }
 }
