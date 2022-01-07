@@ -30,6 +30,7 @@
   import { ref } from "vue";
 
   export default {
+    emits: ['add-todo'],
     setup(props, context) { // 자식컴포넌트 (TodoSimpleForm)에서 부모컴포넌트 (App)으로 넘길때, 필요한게 context
       const todo = ref('')
       const hasError = ref(false);
