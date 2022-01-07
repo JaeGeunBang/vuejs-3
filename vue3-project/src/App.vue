@@ -32,7 +32,10 @@
         class="card mt-2"
     >
       <div class="card-body p-2">
-        {{ todo.subject }}
+        <div class="form-check">
+          <input class="form-check-input" type="checkbox" v-model="todo.completed">
+          <label class="form-check-label" :class="{ todo: todo.completed}" >{{ todo.subject }}</label>
+        </div>
       </div>
     </div>
   </div>
@@ -45,10 +48,14 @@ export default {
   setup() {
     const todo = ref('')
     const todos = ref([
-      {id: 1, subject: '휴대폰 사기'},
-      {id: 2, subject: '장보기'}
+      {id: 1, subject: '휴대폰 사기', completed: false},
+      {id: 2, subject: '장보기', completed: false}
     ])
     const hasError = ref(false);
+    const todoStyle = {
+      textDecoration: 'line-through',
+      color: 'gray'
+    }
 
     const onSubmit = () => {
       if (todo.value === '') {
@@ -57,13 +64,15 @@ export default {
         hasError.value = false
         todos.value.push({
           id: Date.now(),
-          subject: todo.value
+          subject: todo.value,
+          completed: false
         })
         todo.value = ''
       }
     }
 
     return {
+      todoStyle,
       hasError,
       todo,
       todos,
@@ -74,12 +83,8 @@ export default {
 </script>
 
 <style>
-#app {
-  font-family: Avenir, Helvetica, Arial, sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  text-align: center;
-  color: #2c3e50;
-  margin-top: 60px;
-}
+  .todo {
+    color: gray;
+    text-decoration: line-through;
+  }
 </style>
