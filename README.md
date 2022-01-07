@@ -166,3 +166,20 @@ export default {
 }
 </script>
 ```
+
+## json-server
+따로 백엔드 개발 없이, Front에서 DB를 테스트해보고 싶을떄 사용
+- 테스트용이기 때문에, 실제로 사용하진 않음
+
+### 설치
+```angular2html
+npm install -g json-server
+```
+
+이후 root directory에 `db.json` 파일을 만듬
+- db 역할을 해줄 파일
+
+### 실행
+```angular2html
+json-server --watch db.json
+```
