@@ -197,3 +197,13 @@ watch(currentPage, (current, prev) => { // currentPage가 변할때마다  함�
   console.log(current, prev)
 }
 ```
+
+## vue router
+vue 간 페이지 이동할때 사용
+- vue3은 router 4를 설치해야됨
+
+
+설치
+```angular2html
+npm install vue-router@4
+```
