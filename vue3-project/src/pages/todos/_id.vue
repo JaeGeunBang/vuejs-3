@@ -47,6 +47,11 @@
       Cancel
     </button>
   </form>
+  <Toast
+      v-if="showToast"
+      :message="toastMessage"
+      :type="toastAlertType"
+  />
 </template>
 
 <script>
@@ -54,21 +59,38 @@ import { useRoute, useRouter } from 'vue-router';
 import axios from 'axios';
 import { ref, computed } from 'vue';
 import _ from 'lodash';
+import Toast from '@/components/Toast.vue'
+import { useToast } from '@/composables/toast'
 
 export default {
+  components: {
+    Toast
+  },
   setup() {
     const route = useRoute();
     const router = useRouter();
     const todo = ref(null);
     const originalTodo = ref(null);
     const loading = ref(true);
+
+    const {toastMessage,
+      toastAlertType,
+      showToast,
+      triggerToast
+    } = useToast ();
+
     const todoId = route.params.id
 
     const getTodo = async () => {
-      const res = await axios.get(`http://localhost:3000/todos/${todoId}`);
-      todo.value = {...res.data}
-      originalTodo.value = {...res.data} // 깊은 복사 (= res.data로 하면 얕은 복사가 되서 todo.value 수정시 originalTodo.value도 바뀜)
-      loading.value = false;
+      try {
+        const res = await axios.get(`http://localhost:3000/todos/${todoId}`);
+        todo.value = {...res.data}
+        originalTodo.value = {...res.data} // 깊은 복사 (= res.data로 하면 얕은 복사가 되서 todo.value 수정시 originalTodo.value도 바뀜)
+        loading.value = false;
+      }catch(err) {
+        console.log(err)
+        triggerToast('Something went wrong', 'danger')
+      }
     };
 
     const todoUpdate = computed(() => {
@@ -84,16 +106,19 @@ export default {
       })
     };
     getTodo();
-    const onSave = async () => {
-      const res = await axios.put(`http://localhost:3000/todos/${todoId}`, {
-        subject: todo.value.subject,
-        completed: todo.value.completed
-      })
 
-      await router.push({
-        name: 'Todos'
-      })
-      console.log(res)
+    const onSave = async () => {
+      try {
+        const res = await axios.put(`http://localhost:3000/todos/${todoId}`, {
+          subject: todo.value.subject,
+          completed: todo.value.completed
+        })
+        originalTodo.value = {...res.data}
+        triggerToast('Successfully saved!', 'success')
+      } catch (err) {
+        console.log(err)
+        triggerToast('Something went wrong', 'danger')
+      }
     }
     return {
       todo,
@@ -102,6 +127,9 @@ export default {
       moveToTodoListPage,
       onSave,
       todoUpdate,
+      showToast,
+      toastMessage,
+      toastAlertType,
     };
   }
 }

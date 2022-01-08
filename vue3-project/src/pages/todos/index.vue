@@ -10,7 +10,6 @@
     >
     <hr />
     <TodoSimpleForm @add-todo="addTodo" />
-    <div style="color: red">{{ error }}</div>
 
     <div v-if="!todos.length">추가된 Todo가 없습니다.</div>
     <TodoList :todos_data="todos" @toggle-todo="toggleTodo" @delete-todo="deleteTodo"/>
@@ -36,6 +35,11 @@
       </ul>
     </nav>
   </div>
+  <Toast
+      v-if="showToast"
+      :message="toastMessage"
+      :type="toastAlertType"
+  />
 </template>
 
 <script>
@@ -43,11 +47,14 @@ import { ref, computed, watch } from 'vue';
 import TodoSimpleForm from '@/components/TodoSimpleForm'
 import TodoList from '@/components/TodoList'
 import axios from 'axios'
+import Toast from '@/components/Toast.vue'
+import { useToast } from '@/composables/toast'
 
 export default {
   components: {
     TodoSimpleForm,
-    TodoList
+    TodoList,
+    Toast
   },
   setup() {
     const todos = ref([])
@@ -59,6 +66,11 @@ export default {
       return Math.ceil(numberOfTodos.value/limit);
     });
     const searchText = ref('');
+    const {toastMessage,
+      toastAlertType,
+      showToast,
+      triggerToast
+    } = useToast ();
 
     const getTodos = async (page = currentPage.value) => {
       currentPage.value = page;
@@ -70,7 +82,7 @@ export default {
         todos.value = res.data;
       } catch (err) {
         console.log(err);
-        error.value = 'Something went wrong.';
+        triggerToast('Something went wrong', 'danger')
       }
     }
 
@@ -90,7 +102,6 @@ export default {
     })
 
     const addTodo = async (todo) => {
-      error.value = '';
       try {
         await axios.post('http://localhost:3000/todos', {
           subject: todo.subject,
@@ -100,7 +111,7 @@ export default {
         await getTodos(1) ;
       } catch(err) {
         console.log(err)
-        error.value = "[POST] Something went wrong."
+        triggerToast('Something went wrong', 'danger')
       }
     }
 
@@ -111,7 +122,7 @@ export default {
         await getTodos(1) ;
       } catch(err) {
         console.log(err)
-        error.value = "[DELETE] Something went wrong."
+        triggerToast('Something went wrong', 'danger')
       }
     }
 
@@ -123,7 +134,7 @@ export default {
         })
       } catch(err) {
         console.log(err)
-        error.value = "[PATCH] Something went wrong."
+        triggerToast('Something went wrong', 'danger')
       }
       todos.value[index].completed = checked
     }
@@ -139,6 +150,9 @@ export default {
       currentPage,
       getTodos,
       searchTodo,
+      showToast,
+      toastMessage,
+      toastAlertType,
     }
   }
 }
