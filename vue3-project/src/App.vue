@@ -6,13 +6,14 @@
         type="text"
         v-model="searchText"
         placeholder="Search"
+        @keyup.enter="searchTodo"
     >
     <hr />
     <TodoSimpleForm @add-todo="addTodo" />
     <div style="color: red">{{ error }}</div>
 
-    <div v-if="!filteredTodos.length">추가된 Todo가 없습니다.</div>
-    <TodoList :todos_data="filteredTodos" @toggle-todo="toggleTodo" @delete-todo="deleteTodo"/>
+    <div v-if="!todos.length">추가된 Todo가 없습니다.</div>
+    <TodoList :todos_data="todos" @toggle-todo="toggleTodo" @delete-todo="deleteTodo"/>
     <hr />
     <nav aria-label="Page navigation example">
       <ul class="pagination">
@@ -38,7 +39,7 @@
 </template>
 
 <script>
-import { ref, computed } from 'vue';
+import { ref, computed, watch } from 'vue';
 import TodoSimpleForm from './components/TodoSimpleForm'
 import TodoList from './components/TodoList'
 import axios from 'axios'
@@ -57,12 +58,13 @@ export default {
     const numberOfPages = computed(() => {
       return Math.ceil(numberOfTodos.value/limit);
     });
+    const searchText = ref('');
 
     const getTodos = async (page = currentPage.value) => {
       currentPage.value = page;
       try {
         const res = await axios.get(
-            `http://localhost:3000/todos?_page=${page}&_limit=${limit}`
+            `http://localhost:3000/todos?_sort=id&_order=desc&subject_like=${searchText.value}&_page=${page}&_limit=${limit}`
         );
         numberOfTodos.value = res.headers['x-total-count'];
         todos.value = res.data;
@@ -74,14 +76,28 @@ export default {
 
     getTodos();
 
+    let timeout = null;
+    const searchTodo = () => {
+      clearTimeout(timeout);
+      getTodos(1);
+    };
+
+    watch((searchText), () => {
+      clearTimeout(timeout); // n,e,w 를 모두 치면 3번 db 요청이 가는데, timeout을 활용해 new만 db 요청을 할수있다.
+      timeout = setTimeout(() => {
+        getTodos(1);
+      }, 1000)
+    })
+
     const addTodo = async (todo) => {
       error.value = '';
       try {
-        const res = await axios.post('http://localhost:3000/todos', {
+        await axios.post('http://localhost:3000/todos', {
           subject: todo.subject,
           completed: todo.completed,
         })
-        todos.value.push(res.data)
+
+        await getTodos(1) ;
       } catch(err) {
         console.log(err)
         error.value = "[POST] Something went wrong."
@@ -92,7 +108,7 @@ export default {
       try {
         const id = todos.value[index].id
         await axios.delete('http://localhost:3000/todos/' + id)
-        todos.value.splice(index, 1);
+        await getTodos(1) ;
       } catch(err) {
         console.log(err)
         error.value = "[DELETE] Something went wrong."
@@ -112,28 +128,17 @@ export default {
       todos.value[index].completed = !todos.value[index].completed
     }
 
-    const searchText = ref('')
-    const filteredTodos = computed(() => {
-      if (searchText.value) {
-        return todos.value.filter(todo => {
-          return todo.subject.includes(searchText.value)
-        });
-      }
-
-      return todos.value
-    })
-
     return {
       todos,
       addTodo,
       deleteTodo,
       toggleTodo,
       searchText,
-      filteredTodos,
       error,
       numberOfPages,
       currentPage,
       getTodos,
+      searchTodo,
     }
   }
 }

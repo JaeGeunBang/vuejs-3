@@ -183,3 +183,17 @@ npm install -g json-server
 ```angular2html
 json-server --watch db.json
 ```
+
+## watch effect, watch
+vue 내 선언한 ref, reactive 변수들의 변화를 감지하여 함수를 실행한다.
+```vue
+watchEffect(() => { // currentPage, nextPage가 변할때마다 함수 실행
+  console.log(currentPage);
+  console.log(nextPage);
+})
+
+watch(currentPage, (current, prev) => { // currentPage가 변할때마다  함수 실행
+  // currentPage 0에서 1로 변할때, current는 1, prev는 0이 출력됨
+  console.log(current, prev)
+}
+```
