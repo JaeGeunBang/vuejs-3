@@ -38,9 +38,11 @@
     </div>
 
     <button
-        :disabled="todoUpdate"
-        type="submit" class="btn btn-primary">
-      {{ editing ? 'Update': 'Create'}}
+        type="submit"
+        class="btn btn-primary"
+        :disabled="!todoUpdated"
+    >
+      {{ editing ? 'Update' : 'Create'}}
     </button>
     <button
         class="btn btn-outline-dark ml-2"
@@ -49,14 +51,6 @@
       Cancel
     </button>
   </form>
-
-  <transition name="slide">
-    <Toast
-        v-if="showToast"
-        :message="toastMessage"
-        :type="toastAlertType"
-    />
-  </transition>
 </template>
 
 <script>
@@ -64,13 +58,10 @@ import { useRoute, useRouter } from 'vue-router';
 import axios from '@/axios';
 import { ref, computed } from 'vue';
 import _ from 'lodash';
-import Toast from '@/components/Toast.vue'
-import { useToast } from '@/composables/toast'
-import Input from '@/components/Input.vue'
-
+import { useToast } from '@/composables/toast';
+import Input from '@/components/Input.vue';
 export default {
   components: {
-    Toast,
     Input
   },
   props: {
@@ -87,35 +78,32 @@ export default {
       completed: false,
       body: ''
     });
-    const subjectError = ref('')
+    const subjectError = ref('');
     const originalTodo = ref(null);
     const loading = ref(false);
-
-    const {toastMessage,
+    const {
+      toastMessage,
       toastAlertType,
       showToast,
       triggerToast
-    } = useToast ();
-
+    } = useToast();
     const todoId = route.params.id
-
     const getTodo = async () => {
-      loading.value = true
+      loading.value = true;
       try {
         const res = await axios.get(`todos/${todoId}`);
-        todo.value = {...res.data}
-        originalTodo.value = {...res.data} // 깊은 복사 (= res.data로 하면 얕은 복사가 되서 todo.value 수정시 originalTodo.value도 바뀜)
+        todo.value = { ...res.data };
+        originalTodo.value = { ...res.data };
         loading.value = false;
-      }catch(err) {
-        console.log(err)
-        triggerToast('Something went wrong', 'danger')
+      } catch (error) {
+        loading.value = false;
+        console.log(error);
+        triggerToast('Something went wrong', 'danger');
       }
     };
-
-    const todoUpdate = computed(() => {
-      return _.isEqual(todo.value, originalTodo.value)
-    })
-
+    const todoUpdated = computed(() => {
+      return !_.isEqual(todo.value, originalTodo.value)
+    });
     const toggleTodoStatus = () => {
       todo.value.completed = !todo.value.completed;
     };
@@ -124,49 +112,50 @@ export default {
         name: 'Todos'
       })
     };
-
     if (props.editing) {
       getTodo();
     }
     const onSave = async () => {
-      subjectError.value = ''
+      subjectError.value = '';
       if (!todo.value.subject) {
-        subjectError.value = 'Subject is required'
-        return ;
+        subjectError.value = 'Subject is required';
+        return;
       }
-
       try {
         let res;
         const data = {
           subject: todo.value.subject,
           completed: todo.value.completed,
           body: todo.value.body,
-        }
+        };
         if (props.editing) {
-          res = await axios.put(`todos/${todoId}`, data)
-          originalTodo.value = {...res.data}
+          res = await axios.put(`todos/${todoId}`, data);
+          originalTodo.value = {...res.data};
         } else {
-          res = await axios.post('todos/', data)
-          todo.value.subject = ''
-          todo.value.body = ''
-          console.log(res)
+          res = await axios.post('todos', data);
+          todo.value.subject = '';
+          todo.value.body = '';
         }
 
-        const message = 'Successfully ' + (props.editing ? 'Updated' : 'Created')
-        triggerToast(message)
-      } catch (err) {
-        console.log(err)
+        const message = 'Successfully ' + (props.editing ? 'Updated!' : 'Created!');
+        triggerToast(message);
+        if (!props.editing) {
+          router.push({
+            name: 'Todos'
+          })
+        }
+      } catch (error) {
+        console.log(error);
         triggerToast('Something went wrong', 'danger')
       }
-    }
-
+    };
     return {
       todo,
       loading,
       toggleTodoStatus,
       moveToTodoListPage,
       onSave,
-      todoUpdate,
+      todoUpdated,
       showToast,
       toastMessage,
       toastAlertType,
@@ -177,37 +166,18 @@ export default {
 </script>
 
 <style scoped>
-  .text-red {
-    color: red;
-  }
-  .fade-enter-active,
-  .fade-leave-active {
-    transition: opacity 0.5s ease;
-  }
-  .fade-enter-from,
-  .fade-leave-to {
-    opacity: 0;
-  }
-
-  .fade-enter-to,
-  .fade-leave-from {
-    opacity: 1;
-  }
-
-  .slide-enter-active,
-  .slide-leave-active {
-    transition: all 0.5s ease;
-  }
-  .slide-enter-from,
-  .slide-leave-to {
-    opacity: 0;
-    transform: translateY(-30px);
-  }
-
-  .slide-enter-to,
-  .slide-leave-from {
-    opacity: 1;
-    transform: translateY(0px);
-  }
-
+.fade-enter-active,
+.fade-leave-active {
+  transition: all 0.5s ease;
+}
+.fade-enter-from,
+.fade-leave-to {
+  opacity: 0;
+  transform: translateY(-30px);
+}
+.fade-enter-to,
+.fade-leave-from {
+  opacity: 1;
+  transform: translateY(0px);
+}
 </style>
