@@ -1,17 +1,10 @@
 <template>
   <div>
-    <h2>To-Do List</h2>
-    <input
-        class="form-control"
-        type="text"
-        v-model="searchText"
-        placeholder="Search"
-        @keyup.enter="searchTodo"
-    >
-    <hr />
-    <TodoSimpleForm @add-todo="addTodo" />
+    <div class="d-flex justify-content-between mb-3">
+      <h2>To-Do List</h2>
+      <button class="btn btn-primary" @click="moveToCreatePage()">Create Todo</button>
+    </div>
 
-    <div v-if="!todos.length">추가된 Todo가 없습니다.</div>
     <TodoList :todos_data="todos" @toggle-todo="toggleTodo" @delete-todo="deleteTodo"/>
     <hr />
     <nav aria-label="Page navigation example">
@@ -44,15 +37,14 @@
 
 <script>
 import { ref, computed, watch } from 'vue';
-import TodoSimpleForm from '@/components/TodoSimpleForm'
 import TodoList from '@/components/TodoList'
 import axios from 'axios'
 import Toast from '@/components/Toast.vue'
 import { useToast } from '@/composables/toast'
+import { useRouter } from 'vue-router'
 
 export default {
   components: {
-    TodoSimpleForm,
     TodoList,
     Toast
   },
@@ -71,6 +63,7 @@ export default {
       showToast,
       triggerToast
     } = useToast ();
+    const router = useRouter();
 
     const getTodos = async (page = currentPage.value) => {
       currentPage.value = page;
@@ -100,6 +93,12 @@ export default {
         getTodos(1);
       }, 1000)
     })
+
+    const moveToCreatePage = () => {
+      router.push({
+        name: 'TodoCreate'
+      })
+    }
 
     const addTodo = async (todo) => {
       try {
@@ -153,6 +152,7 @@ export default {
       showToast,
       toastMessage,
       toastAlertType,
+      moveToCreatePage,
     }
   }
 }
