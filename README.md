@@ -207,3 +207,14 @@ vue 간 페이지 이동할때 사용
 ```angular2html
 npm install vue-router@4
 ```
+
+## style
+vue 내 `<style>`을 통해 스타일을 적용할수 있다.
+- 허나 `<style>`은 다른 component들에도 적용된다 (global)
+- 그렇기 때문에 해당 파일 내에서만 적용하고 싶다면 scoped를 넣어주면 된다.
+
+```vue
+<style scoped>
+...
+</style>
+```
