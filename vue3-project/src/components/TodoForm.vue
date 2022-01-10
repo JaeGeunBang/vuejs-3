@@ -82,9 +82,6 @@ export default {
     const originalTodo = ref(null);
     const loading = ref(false);
     const {
-      toastMessage,
-      toastAlertType,
-      showToast,
       triggerToast
     } = useToast();
     const todoId = route.params.id
@@ -138,7 +135,7 @@ export default {
         }
 
         const message = 'Successfully ' + (props.editing ? 'Updated!' : 'Created!');
-        triggerToast(message);
+        triggerToast(message, 'success');
         if (!props.editing) {
           router.push({
             name: 'Todos'
@@ -156,9 +153,6 @@ export default {
       moveToTodoListPage,
       onSave,
       todoUpdated,
-      showToast,
-      toastMessage,
-      toastAlertType,
       subjectError,
     };
   }

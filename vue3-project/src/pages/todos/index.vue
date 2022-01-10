@@ -59,9 +59,7 @@ export default {
       return Math.ceil(numberOfTodos.value/limit);
     });
     const searchText = ref('');
-    const {toastMessage,
-      toastAlertType,
-      showToast,
+    const {
       triggerToast
     } = useToast();
     const router = useRouter();
@@ -149,9 +147,6 @@ export default {
       currentPage,
       getTodos,
       searchTodo,
-      showToast,
-      toastMessage,
-      toastAlertType,
       moveToCreatePage,
     }
   }

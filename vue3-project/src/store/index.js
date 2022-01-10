@@ -5,31 +5,27 @@ export default createStore({
         toast: {
             namespaced: true,
             state: {
-                toastMessage: '',
-                toastAlertType: '',
-                showToast: false
+                toasts: [],
             },
             mutations: {
-                UPDATE_TOAST_MESSAGE (state, payload) {
-                    state.toastMessage = payload
+                ADD_TOAST(state, payload) {
+                    state.toasts.push(payload)
                 },
-                UPDATE_TOAST_ALERT_TYPE(state, payload) {
-                    state.toastAlertType = payload
-                },
-                UPDATE_TOAST_STATUS(state, payload) {
-                    state.showToast = payload
-                },
+                REMOVE_TOAST(state) {
+                    state.toasts.shift()
+                }
             },
             actions: {
-                triggerToast (context, message, type) {
-                    context.commit('UPDATE_TOAST_MESSAGE', message)
-                    context.commit('UPDATE_TOAST_ALERT_TYPE', type)
-                    context.commit('UPDATE_TOAST_STATUS', true)
+                triggerToast ( context, message, type = 'success') {
+                    console.log(type)
+                    context.commit('ADD_TOAST', {
+                        id: Date.now(),
+                        message: message,
+                        type: type
+                    })
                     setTimeout(() => {
-                        context.commit('UPDATE_TOAST_MESSAGE', '')
-                        context.commit('UPDATE_TOAST_ALERT_TYPE', '')
-                        context.commit('UPDATE_TOAST_STATUS', false)
-                    }, 3000)
+                        context.commit('REMOVE_TOAST')
+                    }, 10000)
                 }
             },
             getters: { //computed 랑 거의 비슷하다고 보면 됨 (감시하고 있다가, 변경이 발생하면 아래 내용을 반환해줌)
