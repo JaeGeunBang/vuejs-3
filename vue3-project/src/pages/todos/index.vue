@@ -5,6 +5,14 @@
       <button class="btn btn-primary" @click="moveToCreatePage()">Create Todo</button>
     </div>
 
+    <input
+        class="form-control"
+        type="text"
+        v-model="searchText"
+        placeholder="Search"
+        @keyup.enter="searchTodo"
+    >
+    <hr />
     <TodoList :todos_data="todos" @toggle-todo="toggleTodo" @delete-todo="deleteTodo"/>
     <hr />
     <nav aria-label="Page navigation example">
@@ -114,9 +122,8 @@ export default {
       }
     }
 
-    const deleteTodo = async (index) => {
+    const deleteTodo = async (id) => {
       try {
-        const id = todos.value[index].id
         await axios.delete('http://localhost:3000/todos/' + id)
         await getTodos(1) ;
       } catch(err) {

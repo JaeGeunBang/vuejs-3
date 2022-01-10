@@ -119,6 +119,13 @@ export default {
 
 consoleLog() 라는 함수를 `<script>`내 정의해주면 된다.
 
+### 줄여서 사용할때
+```angular2html
+v-on: -> @
+v-bind: -> :
+v-slot: -> #
+```
+
 ## ref vs reactive
 위 코드를 그대로 사용하면, click 했을때 name 변수가 반영이 안된다. 그래서 ref, reactive를 사용해야 한다.
 - ref는 int, string을 사용할때
