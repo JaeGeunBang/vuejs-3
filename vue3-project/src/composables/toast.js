@@ -6,9 +6,11 @@ export const useToast = () => {
     const toasts = computed(() => store.state.toast.toasts) ;
 
     const triggerToast = (message, type = 'success') => {
-        console.log(message)
-        console.log(type)
-        store.dispatch('toast/triggerToast', message, type)
+        const payload = {
+            message: message,
+            type: type,
+        }
+        store.dispatch('toast/triggerToast', payload)
     }
 
     return {

@@ -16,12 +16,11 @@ export default createStore({
                 }
             },
             actions: {
-                triggerToast ( context, message, type = 'success') {
-                    console.log(type)
+                triggerToast ( context, payload) {
                     context.commit('ADD_TOAST', {
                         id: Date.now(),
-                        message: message,
-                        type: type
+                        message: payload.message,
+                        type: payload.type
                     })
                     setTimeout(() => {
                         context.commit('REMOVE_TOAST')
